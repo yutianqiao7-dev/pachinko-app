@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>パチンコ記録</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, sans-serif;
+      background: #111;
+      color: #fff;
+      min-height: 100vh;
+    }
+    .screen { display: none; padding: 16px; }
+    .screen.active { display: block; }
+    h1 { font-size: 20px; margin-bottom: 16px; }
+    button {
+      background: #2a7;
+      color: #fff;
+      border: none;
+      padding: 14px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      width: 100%;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    button.secondary { background: #444; }
+    button.danger { background: #c33; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background: #222;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    label { display: block; margin-bottom: 4px; font-size: 14px; color: #aaa; }
+
+    /* カメラ画面 */
+    #cameraView {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: #000;
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #guideFrame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      aspect-ratio: 1;
+      border: 3px solid #2f2;
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+    }
+    #guideLabel {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* リスト */
+    .record-item {
+      background: #222;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .record-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      float: left;
+      margin-right: 12px;
+    }
+    .record-item .info { overflow: hidden; }
+    .rate { font-size: 18px; color: #2f2; font-weight: bold; }
+
+    /* タブ */
+    .tabs {
+      display: flex;
+      background: #222;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .tabs button {
+      flex: 1;
+      margin: 0;
+      border-radius: 0;
+      background: #222;
+      padding: 16px 0;
+    }
+    .tabs button.active { background: #2a7; }
+  </style>
+</head>
+<body>
+
+  <div class="tabs">
+    <button onclick="showScreen('capture')" class="active" id="tab-capture">📷 記録</button>
+    <button onclick="showScreen('list')" id="tab-list">📋 一覧</button>
+  </div>
+
+  <!-- 撮影画面 -->
+  <div class="screen active" id="capture">
+    <h1>新規記録</h1>
+
+    <div id="cameraView">
+      <video id="video" autoplay playsinline muted></video>
+      <div id="guideFrame"></div>
+      <div id="guideLabel">この枠にヘソを合わせる</div>
+    </div>
+
+    <button onclick="capturePhoto()">📸 撮影</button>
+
+    <div id="preview" style="display:none;">
+      <img id="previewImg" style="width:100%; border-radius:8px; margin-bottom:12px;">
+
+      <label>店舗</label>
+      <input type="text" id="store" placeholder="例: ○○店">
+
+      <label>機種名</label>
+      <input type="text" id="machine" placeholder="例: 海物語">
+
+      <label>台番号</label>
+      <input type="text" id="seatNo" placeholder="例: 123">
+
+      <label>投資額(円)</label>
+      <input type="number" id="investment" value="10000">
+
+      <label>回転数</label>
+      <input type="number" id="spins" placeholder="例: 31">
+
+      <label>メモ</label>
+      <input type="text" id="memo" placeholder="照明など">
+
+      <button onclick="saveRecord()">💾 保存</button>
+      <button onclick="cancelCapture()" class="secondary">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- 一覧画面 -->
+  <div class="screen" id="list">
+    <h1>記録一覧 (<span id="count">0</span>件)</h1>
+    <button onclick="exportCSV()" class="secondary">📥 CSVダウンロード</button>
+    <button onclick="clearAll()" class="danger">🗑 全削除</button>
+    <div id="records"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

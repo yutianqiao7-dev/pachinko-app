@@ -1,0 +1,15 @@
+{
+  "name": "パチンコ記録",
+  "short_name": "パチ記録",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#22aa77",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
